@@ -1,20 +1,31 @@
 class ArticlesController < ApplicationController
   # user must be authenticated on every action except index and show
-  http_basic_authenticate_with name: "ling", password: "password", except: [:index, :show]
+  # http_basic_authenticate_with name: "ling", password: "password", except: [:index, :show]
+
+  # for devise, must authenticate user before any action, except for the index and show
+  before_action :authenticate_user!, except: [:index, :show]
 
   def index
     @articles = Article.all
   end
   
   def new
-    @article = Article.new
+    # @article = Article.new
+    # for devise
+    @article = current_user.articles.build
   end
 
   def create
-    @article = Article.new(
+    # for devise
+    @article = current_user.articles.build(
       title: params[:article][:title],
       text: params[:article][:text]
     )
+
+    # @article = Article.new(
+    #   title: params[:article][:title],
+    #   text: params[:article][:text]
+    # )
 
     # The render method is used so that the @article object is passed back to the new template when it is rendered. This rendering is done within the same request as the form submission, whereas the redirect_to will tell the browser to issue another request.
     if @article.save
